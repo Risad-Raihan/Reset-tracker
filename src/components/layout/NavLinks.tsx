@@ -6,9 +6,11 @@ import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
   { href: "/today", label: "Today" },
+  { href: "/focus", label: "Focus" },
   { href: "/streaks", label: "Streaks" },
   { href: "/charts", label: "Charts" },
   { href: "/books", label: "Books" },
+  { href: "/notes", label: "Notes" },
   { href: "/weekly", label: "Weekly" },
 ] as const;
 

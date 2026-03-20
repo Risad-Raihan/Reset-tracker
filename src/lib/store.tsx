@@ -15,6 +15,9 @@ import type {
   Book,
   HabitId,
   TaskPriority,
+  DeepWorkSession,
+  DeepWorkDay,
+  Note,
 } from "@/types";
 import { HABIT_IDS } from "@/types";
 import { format } from "date-fns";
@@ -72,6 +75,12 @@ interface AppContextValue {
   exportData: () => string;
   importData: (json: string) => void;
   clearData: () => void;
+  deepWorkDays: Record<string, DeepWorkDay>;
+  addDeepWorkSession: (date: string, session: DeepWorkSession) => void;
+  notes: Note[];
+  addNote: (note: Omit<Note, "id" | "createdAt" | "updatedAt">) => void;
+  updateNote: (id: string, updates: Partial<Note>) => void;
+  deleteNote: (id: string) => void;
 }
 
 const MILESTONE_STORAGE_KEY = "reset-celebrated-milestones";
@@ -80,6 +89,8 @@ const STORAGE_KEYS = {
   taskDays: "reset-task-days",
   books: "reset-books",
   milestones: MILESTONE_STORAGE_KEY,
+  deepwork: "reset-deepwork",
+  notes: "reset-notes",
 } as const;
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -98,8 +109,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [celebratedMilestones, setCelebratedMilestones, milestonesHydrated] =
     useStorage<Record<string, number[]>>(STORAGE_KEYS.milestones, {});
 
+  const [deepWorkDays, setDeepWorkDays, deepworkHydrated] = useStorage<
+    Record<string, DeepWorkDay>
+  >(STORAGE_KEYS.deepwork, {});
+
+  const [notes, setNotes, notesHydrated] = useStorage<Note[]>(STORAGE_KEYS.notes, []);
+
   const isHydrated =
-    dayLogsHydrated && taskDaysHydrated && booksHydrated && milestonesHydrated;
+    dayLogsHydrated &&
+    taskDaysHydrated &&
+    booksHydrated &&
+    milestonesHydrated &&
+    deepworkHydrated &&
+    notesHydrated;
 
   const markMilestoneCelebrated = useCallback(
     (habitId: string, days: number) => {
@@ -121,10 +143,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       taskDays,
       books,
       celebratedMilestones,
+      deepWorkDays,
+      notes,
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(data, null, 2);
-  }, [dayLogs, taskDays, books, celebratedMilestones]);
+  }, [dayLogs, taskDays, books, celebratedMilestones, deepWorkDays, notes]);
 
   const importData = useCallback(
     (json: string) => {
@@ -134,13 +158,65 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (data.taskDays) setTaskDays(data.taskDays);
         if (data.books) setBooks(data.books);
         if (data.celebratedMilestones) setCelebratedMilestones(data.celebratedMilestones);
+        if (data.deepWorkDays) setDeepWorkDays(data.deepWorkDays);
+        if (data.notes) setNotes(data.notes);
         if (typeof window !== "undefined") window.location.reload();
       } catch (e) {
         console.error("Import failed:", e);
         throw new Error("Invalid backup file");
       }
     },
-    [setDayLogs, setTaskDays, setBooks, setCelebratedMilestones]
+    [setDayLogs, setTaskDays, setBooks, setCelebratedMilestones, setDeepWorkDays, setNotes]
+  );
+
+  const addDeepWorkSession = useCallback(
+    (date: string, session: DeepWorkSession) => {
+      setDeepWorkDays((prev) => {
+        const existing = prev[date] ?? { date, totalMs: 0, sessions: [] };
+        return {
+          ...prev,
+          [date]: {
+            date,
+            totalMs: existing.totalMs + session.durationMs,
+            sessions: [...existing.sessions, session],
+          },
+        };
+      });
+    },
+    [setDeepWorkDays]
+  );
+
+  const addNote = useCallback(
+    (note: Omit<Note, "id" | "createdAt" | "updatedAt">) => {
+      const now = new Date().toISOString();
+      const newNote: Note = {
+        ...note,
+        id: crypto.randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+      };
+      setNotes((prev) => [...prev, newNote]);
+    },
+    [setNotes]
+  );
+
+  const updateNote = useCallback(
+    (id: string, updates: Partial<Note>) => {
+      const now = new Date().toISOString();
+      setNotes((prev) =>
+        prev.map((n) =>
+          n.id === id ? { ...n, ...updates, updatedAt: now } : n
+        )
+      );
+    },
+    [setNotes]
+  );
+
+  const deleteNote = useCallback(
+    (id: string) => {
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+    },
+    [setNotes]
   );
 
   const clearData = useCallback(() => {
@@ -148,8 +224,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTaskDays({});
     setBooks([]);
     setCelebratedMilestones({});
+    setDeepWorkDays({});
+    setNotes([]);
     if (typeof window !== "undefined") window.location.reload();
-  }, [setDayLogs, setTaskDays, setBooks, setCelebratedMilestones]);
+  }, [setDayLogs, setTaskDays, setBooks, setCelebratedMilestones, setDeepWorkDays, setNotes]);
 
   const getDayLog = useCallback(
     (date: string): DayLog => {
@@ -313,6 +391,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       exportData,
       importData,
       clearData,
+      deepWorkDays,
+      addDeepWorkSession,
+      notes,
+      addNote,
+      updateNote,
+      deleteNote,
     }),
     [
       dayLogs,
@@ -335,6 +419,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       exportData,
       importData,
       clearData,
+      deepWorkDays,
+      addDeepWorkSession,
+      notes,
+      addNote,
+      updateNote,
+      deleteNote,
     ]
   );
 

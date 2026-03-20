@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TimeRangeSelector, type TimeRange } from "@/components/charts/TimeRangeSelector";
+import { DeepWorkChart } from "@/components/charts/DeepWorkChart";
 import { ScoreTrend } from "@/components/charts/ScoreTrend";
 import { SleepChart } from "@/components/charts/SleepChart";
 import { CoffeeChart } from "@/components/charts/CoffeeChart";
@@ -28,6 +29,17 @@ export default function ChartsPage() {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="rounded-xl border border-white/10 bg-surface p-6 lg:col-span-2"
+        >
+          <h2 className="mb-4 font-display text-lg font-bold text-white">
+            Deep Work Time
+          </h2>
+          <DeepWorkChart range={range} />
+        </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

@@ -16,6 +16,23 @@ export function getFilteredDates(dayLogs: Record<string, DayLog>, range: TimeRan
   );
 }
 
+export function getDateRangeForChart(
+  range: TimeRange,
+  dataKeys?: string[]
+): string[] {
+  const today = new Date();
+  if (range === "all" && dataKeys?.length) {
+    return [...dataKeys].sort();
+  }
+  if (range === "all") {
+    return [];
+  }
+  const n = parseInt(range, 10);
+  return Array.from({ length: n }, (_, i) =>
+    format(subDays(today, n - 1 - i), "yyyy-MM-dd")
+  );
+}
+
 export function getScoreChartData(dayLogs: Record<string, DayLog>, range: TimeRange) {
   const dates = getFilteredDates(dayLogs, range);
   return dates.map((date) => {
