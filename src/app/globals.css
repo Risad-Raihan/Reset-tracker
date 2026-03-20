@@ -35,58 +35,172 @@ body {
 }
 
 /* Markdown viewer dark theme */
+.prose-reset {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(250, 250, 250, 0.88);
+}
+
+.prose-reset > * + * {
+  margin-top: 1.25em;
+}
+
 .prose-reset h1 {
   font-family: var(--font-display);
   font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
   color: #fafafa;
   border-left: 3px solid #3dffa0;
   padding-left: 0.75rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+.prose-reset h1:first-child {
+  margin-top: 0;
 }
 .prose-reset h2 {
   font-family: var(--font-display);
   font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
   color: #fafafa;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .prose-reset h3 {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  color: rgba(250, 250, 250, 0.85);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(250, 250, 250, 0.9);
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
 }
+.prose-reset h4 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(250, 250, 250, 0.8);
+  margin-top: 1.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.prose-reset p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.prose-reset ul,
+.prose-reset ol {
+  padding-left: 1.5rem;
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+}
+.prose-reset ul {
+  list-style-type: disc;
+}
+.prose-reset ol {
+  list-style-type: decimal;
+}
+.prose-reset li {
+  margin-bottom: 0.35rem;
+  line-height: 1.75;
+}
+.prose-reset li > ul,
+.prose-reset li > ol {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.prose-reset hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 2rem 0;
+}
+
+.prose-reset strong {
+  font-weight: 700;
+  color: #fafafa;
+}
+.prose-reset em {
+  font-style: italic;
+  color: rgba(250, 250, 250, 0.75);
+}
+
 .prose-reset code {
   font-family: var(--font-mono);
+  font-size: 0.875em;
   background: #18181b;
   border-radius: 4px;
   padding: 2px 6px;
+  color: #86efac;
 }
 .prose-reset pre {
   background: #111114;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.25rem;
   overflow-x: auto;
+  margin: 1.5rem 0;
+  line-height: 1.6;
 }
+.prose-reset pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.875rem;
+  color: inherit;
+  border-radius: 0;
+}
+
 .prose-reset blockquote {
   border-left: 3px solid #ffb84d;
-  padding-left: 1rem;
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1.5rem 0;
   color: rgba(250, 250, 250, 0.6);
+  font-style: italic;
 }
+.prose-reset blockquote p {
+  margin-bottom: 0;
+}
+
 .prose-reset table {
   width: 100%;
   border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
 }
 .prose-reset th {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.6rem 1rem;
   text-align: left;
   color: #3dffa0;
+  font-weight: 600;
 }
 .prose-reset td {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
 }
+.prose-reset tr:last-child td {
+  border-bottom: none;
+}
+
 .prose-reset a {
   color: #5b9dff;
   text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-reset a:hover {
+  color: #93c5fd;
+}
+
+/* Checkboxes (GFM task lists) */
+.prose-reset input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: #3dffa0;
 }
 
 /* rehype-highlight / highlight.js dark theme */
