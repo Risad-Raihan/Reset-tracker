@@ -14,24 +14,32 @@ interface FileDashboardProps {
 export function FileDashboard({ onOpenFile, onDeleteFile }: FileDashboardProps) {
   const [files, setFiles] = useState<BlobFile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
 
   const fetchFiles = async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const res = await fetch("/api/files");
-      if (res.ok) {
-        const blobs = await res.json();
-        setFiles(
-          blobs.map((b: { url: string; pathname: string; size: number; uploadedAt: string }) => ({
+      const json = await res.json();
+      if (!res.ok) {
+        setFetchError(json.error ?? "Failed to load files");
+        setFiles([]);
+        return;
+      }
+      setFiles(
+        (Array.isArray(json) ? json : []).map(
+          (b: { url: string; pathname: string; size: number; uploadedAt: string }) => ({
             url: b.url,
             pathname: b.pathname,
             size: b.size,
             uploadedAt: b.uploadedAt,
-          }))
-        );
-      }
-    } catch {
+          })
+        )
+      );
+    } catch (e) {
+      setFetchError(e instanceof Error ? e.message : "Network error");
       setFiles([]);
     } finally {
       setLoading(false);
@@ -105,6 +113,11 @@ export function FileDashboard({ onOpenFile, onDeleteFile }: FileDashboardProps) 
 
       {loading ? (
         <p className="text-white/60">Loading files…</p>
+      ) : fetchError ? (
+        <div className="rounded-xl border border-coral/20 bg-coral/5 p-4">
+          <p className="text-sm font-medium text-coral">Failed to load files</p>
+          <p className="mt-1 font-mono text-xs text-white/50">{fetchError}</p>
+        </div>
       ) : files.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}

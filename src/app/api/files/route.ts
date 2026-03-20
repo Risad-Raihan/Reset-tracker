@@ -8,18 +8,27 @@ const supabase = createClient(
 // GET → list files in the bucket
 export async function GET() {
   const { data, error } = await supabase.storage.from("files").list("", {
+    limit: 200,
     sortBy: { column: "created_at", order: "desc" },
   });
 
-  if (error) return Response.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("[files GET] storage list error:", error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
 
-  const files = (data ?? []).map((item) => {
+  // Filter out folder placeholders (Supabase adds these for empty folders)
+  const fileItems = (data ?? []).filter(
+    (item) => item.id !== null && item.name !== ".emptyFolderPlaceholder"
+  );
+
+  const files = fileItems.map((item) => {
     const { data: urlData } = supabase.storage.from("files").getPublicUrl(item.name);
     return {
       url: urlData.publicUrl,
       pathname: item.name,
       size: item.metadata?.size ?? 0,
-      uploadedAt: item.created_at ?? new Date().toISOString(),
+      uploadedAt: item.updated_at ?? item.created_at ?? new Date().toISOString(),
     };
   });
 
